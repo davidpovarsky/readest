@@ -13,7 +13,6 @@ on:
       - "Upload Release Assets to R2"
       - "Deploy to vercel on merge"
     types:
-      - requested
       - in_progress
       - completed
 
