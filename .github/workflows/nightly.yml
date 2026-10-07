@@ -14,6 +14,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
 
 # Serialize runs so an older run can't publish nightly/latest.json after a newer
@@ -28,10 +29,26 @@ jobs:
     outputs:
       nightly_version: ${{ steps.v.outputs.nightly_version }}
     steps:
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: main
           persist-credentials: false
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - id: v
         run: |
           BASE=$(node -p "require('./apps/readest-app/package.json').version")
@@ -82,23 +99,64 @@ jobs:
     # because a job-level timeout reports `cancelled` and skips assemble-manifest.
     timeout-minutes: 75
     steps:
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: main
           persist-credentials: false
 
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: initialize git submodules
         run: git submodule update --init --recursive
 
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: setup pnpm
         uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
 
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: setup node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: 24
           cache: pnpm
 
+      - name: Live Activity · refresh
+        if: matrix.config.release == 'android'
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: setup Java (for Android build only)
         if: matrix.config.release == 'android'
         uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
@@ -106,35 +164,102 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
+      - name: Live Activity · refresh
+        if: matrix.config.release == 'android'
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: setup Android SDK (for Android build only)
         if: matrix.config.release == 'android'
         uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4
 
+      - name: Live Activity · refresh
+        if: matrix.config.release == 'android'
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: install NDK (for Android build only)
         if: matrix.config.release == 'android'
         run: sdkmanager "ndk;28.2.13676358"
 
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
 
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: copy pdfjs-dist and simplecc-dist to public directory
         run: pnpm --filter @readest/readest-app setup-vendors
 
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
         with:
           targets: ${{ matrix.config.rust_target }}
 
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
         with:
           key: nightly-${{ matrix.config.os }}-${{ matrix.config.release }}-${{ matrix.config.arch }}-cargo
 
+      - name: Live Activity · refresh
+        if: contains(matrix.config.os, 'ubuntu') && matrix.config.release != 'android'
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: install dependencies (ubuntu only)
         if: contains(matrix.config.os, 'ubuntu') && matrix.config.release != 'android'
         run: |
           sudo apt-get update
           sudo apt-get install -y pkg-config libfontconfig-dev libgtk-3-dev libwebkit2gtk-4.1 libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1 libjavascriptcoregtk-4.1-dev gir1.2-javascriptcoregtk-4.1 gir1.2-webkit2-4.1 libappindicator3-dev librsvg2-dev patchelf xdg-utils
 
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: create .env.local file for Next.js
         run: |
           echo "NEXT_PUBLIC_POSTHOG_KEY=${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}" >> .env.local
@@ -148,6 +273,14 @@ jobs:
           echo "SENTRY_PROJECT=readest" >> .env.local
           cp .env.local apps/readest-app/.env.local
 
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: install rclone
         shell: bash
         run: |
@@ -159,6 +292,14 @@ jobs:
             choco install rclone -y
           fi
 
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: configure rclone
         shell: bash
         run: |
@@ -176,6 +317,15 @@ jobs:
       # `pnpm tauri android init` + `git checkout .` reverts tracked files
       # (including package.json), so the nightly version MUST be patched AFTER
       # the checkout. Mirrors release.yml's android build/signing steps.
+      - name: Live Activity · refresh
+        if: matrix.config.release == 'android'
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: build and sign Android apks
         if: matrix.config.release == 'android'
         shell: bash
@@ -216,6 +366,15 @@ jobs:
       # Linux uses the truly-portable AppImage tauri CLI fork (mirrors
       # release.yml). The nightly version is patched BEFORE `tauri build` so the
       # bundle filenames carry the stamp.
+      - name: Live Activity · refresh
+        if: matrix.config.release == 'linux'
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: Override tauri-cli with custom AppImage format (Linux)
         if: matrix.config.release == 'linux'
         run: cargo install tauri-cli --git https://github.com/tauri-apps/tauri --branch feat/truly-portable-appimage --force
@@ -226,6 +385,15 @@ jobs:
       # the app under Xvfb and hang forever, timing out the Linux legs (#4906).
       # Seed the cache with the last known-good revision so the bundler never
       # fetches the moving main-branch script.
+      - name: Live Activity · refresh
+        if: matrix.config.release == 'linux'
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: pin quick-sharun.sh for AppImage bundling (Linux)
         if: matrix.config.release == 'linux'
         run: |
@@ -236,6 +404,15 @@ jobs:
             "https://raw.githubusercontent.com/pkgforge-dev/Anylinux-AppImages/b3a9e985cdedf7efa81d172f182cd13983743147/useful-tools/quick-sharun.sh"
           chmod +x "$cache_dir/quick-sharun.sh"
 
+      - name: Live Activity · refresh
+        if: matrix.config.release != 'android'
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: build desktop bundles
         if: matrix.config.release != 'android'
         shell: bash
@@ -269,6 +446,15 @@ jobs:
 
       # Portable Windows build: rebuild with NEXT_PUBLIC_PORTABLE_APP=true and
       # ship the raw exe (mirrors release.yml). Runs after the NSIS build above.
+      - name: Live Activity · refresh
+        if: matrix.config.os == 'windows-latest'
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: build and sign portable binaries (Windows only)
         if: matrix.config.os == 'windows-latest'
         shell: bash
@@ -325,6 +511,14 @@ jobs:
       # src/components/UpdaterWindow.tsx::TAURI_UPDATER_KEYS). The fragment
       # `signature` is the .sig file CONTENTS; `url` is the download.readest.com
       # URL of the uploaded artifact under nightly/<version>/.
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: collect artifacts + build manifest fragment
         shell: bash
         run: |
@@ -421,6 +615,14 @@ jobs:
       # so it verifies these against readest/readest even though they ship via
       # download.readest.com rather than a GitHub release. The .sig updater
       # signatures are excluded — they are not binaries users run.
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: attest nightly binaries
         uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
         with:
@@ -428,6 +630,14 @@ jobs:
             nightly-out/Readest*
             !nightly-out/*.sig
 
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: upload artifacts + fragment to R2
         shell: bash
         run: |
@@ -446,9 +656,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: install rclone + jq
         run: sudo apt-get update && sudo apt-get install -y rclone jq
 
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: configure rclone
         run: |
           mkdir -p ~/.config/rclone
@@ -461,6 +687,14 @@ jobs:
           endpoint = https://${{ secrets.RELEASE_R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
           EOF
 
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: assemble + atomically promote latest.json
         run: |
           set -euo pipefail
@@ -492,6 +726,14 @@ jobs:
           mkdir -p promote && cp latest.json promote/latest.json
           rclone copy promote "$base/"
 
+      - name: Live Activity · refresh
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: prune old nightly folders (keep newest 7)
         run: |
           set -euo pipefail
@@ -510,6 +752,15 @@ jobs:
             done
           fi
 
+      - name: Live Activity · refresh
+        if: failure()
+        uses: davidpovarsky/github-automation/live-refresh@main
+        continue-on-error: true
+        with:
+          event: refresh
+          device_id: ${{ secrets.NOTIFY_DEVICE_ID }}
+          token: ${{ secrets.NOTIFY_DEVICE_TOKEN }}
+          github_token: ${{ github.token }}
       - name: notify on failure
         if: failure()
         run: echo "::error::Nightly assemble failed — manifest not promoted."
